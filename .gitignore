@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Project Generated Files & Directories
+segments/
+keypoints/
+output_sentence.mp4
+file_list.txt
+
+# MediaPipe model cache
+pose_landmarker.task
+
+# IDE
+.vscode/
+.idea/

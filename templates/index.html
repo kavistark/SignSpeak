@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISL Web Studio — Indian Sign Language AI Translator</title>
+    <meta name="description" content="State-of-the-Art Indian Sign Language (ISL) Video Translator with Real-Time MediaPipe Skeleton Landmark Extraction.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Background Ambient Glow -->
+    <div class="app-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="brand">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M7 11v-4a2 2 0 1 1 4 0v4m0-4a2 2 0 1 1 4 0v4m0-4a2 2 0 1 1 4 0v7a6 6 0 0 1-6 6h-2a6 6 0 0 1-6-6v-3a2 2 0 1 1 4 0v-4" />
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title">ISL<span class="gradient-text">Studio</span> <span class="version-badge">v2.0</span></div>
+                    <span class="brand-tag">AI Sign Language & Skeleton Synthesis</span>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <div class="status-chip" id="system-status-chip">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Checking Engine...</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="open-dict-btn" title="Open Vocabulary Dictionary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <span>Dictionary (<strong id="dict-count">228</strong> Words)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container main-content">
+        <!-- How It Works Step Banner -->
+        <div class="workflow-steps">
+            <div class="step-item active">
+                <div class="step-num">1</div>
+                <div class="step-label">Enter Sentence</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-label">ISL Grammar AI</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-label">Video Clip Sync</div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-label">3D Skeleton & Export</div>
+            </div>
+        </div>
+
+        <!-- Translation Studio Card -->
+        <section class="card glass-panel studio-card">
+            <div class="card-header">
+                <div class="header-badge">AI Translation Engine</div>
+                <h1 class="card-title">English to Indian Sign Language (ISL)</h1>
+                <p class="card-subtitle">Type or speak an English sentence. The engine intelligently converts English grammar into Subject-Object-Verb (SOV) ISL signs with real-time video stitching and MediaPipe pose extraction.</p>
+            </div>
+
+            <!-- Example Categories Filter -->
+            <div class="examples-section">
+                <div class="examples-header">
+                    <span class="examples-title">Quick Try Examples:</span>
+                    <div class="category-tabs">
+                        <button class="cat-pill active" data-cat="all">All</button>
+                        <button class="cat-pill" data-cat="greetings">Greetings</button>
+                        <button class="cat-pill" data-cat="daily">Daily Life</button>
+                        <button class="cat-pill" data-cat="questions">Questions</button>
+                    </div>
+                </div>
+
+                <div class="example-chips" id="example-chips-container">
+                    <button class="chip-btn" data-cat="greetings" data-text="how are you">"How are you?"</button>
+                    <button class="chip-btn" data-cat="greetings" data-text="good morning brother">"Good morning brother"</button>
+                    <button class="chip-btn" data-cat="daily" data-text="i eat food and go to school tomorrow">"I eat food and go to school tomorrow"</button>
+                    <button class="chip-btn" data-cat="daily" data-text="today is sunday i stay home">"Today is Sunday, I stay home"</button>
+                    <button class="chip-btn" data-cat="daily" data-text="i love my father and mother">"I love my father and mother"</button>
+                    <button class="chip-btn" data-cat="questions" data-text="what is your name">"What is your name?"</button>
+                    <button class="chip-btn" data-cat="questions" data-text="where is your office">"Where is your office?"</button>
+                    <button class="chip-btn" data-cat="daily" data-text="he drive car to bank work">"He drive car to bank work"</button>
+                </div>
+            </div>
+
+            <!-- Input Box with Voice & Clear Controls -->
+            <div class="input-wrapper">
+                <div class="textarea-header">
+                    <span class="textarea-label">English Sentence</span>
+                    <span class="char-count" id="char-count">0 characters</span>
+                </div>
+                <div class="textarea-container">
+                    <textarea id="sentence-input" class="modern-textarea" placeholder="Type your sentence here (e.g. 'I will meet my teacher tomorrow morning')..." rows="2"></textarea>
+                    <button class="clear-input-btn" id="clear-input-btn" title="Clear text" style="display: none;">&times;</button>
+                </div>
+                
+                <div class="input-actions">
+                    <button class="btn btn-ghost btn-sm" id="voice-input-btn" title="Speak sentence via microphone">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                        <span id="voice-btn-text">Voice Input</span>
+                    </button>
+
+                    <button class="btn btn-ghost" id="preview-grammar-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        Quick Syntax Preview
+                    </button>
+                    
+                    <button class="btn btn-primary" id="generate-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span>Generate ISL Video & Skeleton</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grammar Preview Strip -->
+            <div class="grammar-preview-panel" id="grammar-panel" style="display: none;">
+                <div class="grammar-header">
+                    <span class="grammar-label">ISL Syntax Sequence:</span>
+                    <span class="grammar-rule-hint">SOV (Subject-Object-Verb) Grammar</span>
+                </div>
+                <div class="glosses-container" id="glosses-container"></div>
+            </div>
+        </section>
+
+        <!-- Live Pipeline Progress Card -->
+        <section class="card glass-panel progress-card" id="progress-section" style="display: none;">
+            <div class="progress-header">
+                <div class="progress-title-wrap">
+                    <div class="spinner-pulse"></div>
+                    <div>
+                        <h3 class="progress-title" id="progress-heading">Generating ISL Video</h3>
+                        <p class="progress-status" id="progress-status-text">Initializing pipeline...</p>
+                    </div>
+                </div>
+                <div class="progress-percent" id="progress-percent">0%</div>
+            </div>
+
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+
+            <!-- Pipeline Log Terminal -->
+            <div class="terminal-header">
+                <span>Real-Time Activity Log</span>
+                <span class="pulse-indicator"><span class="dot-live"></span> Active</span>
+            </div>
+            <div class="terminal-log-box" id="terminal-logs">
+                <div class="terminal-line"><span class="term-time">[00:00]</span> Initializing ISL Translation Pipeline...</div>
+            </div>
+        </section>
+
+        <!-- Visualizer Studio (Dual Synchronized Player) -->
+        <section class="visualizer-section" id="visualizer-section" style="display: none;">
+            <div class="section-title-row">
+                <div>
+                    <h2 class="section-title">Synchronized ISL Player & Skeleton</h2>
+                    <p class="section-subtitle">Real-time synchronized playback of human sign language video alongside extracted MediaPipe 33-point pose skeleton.</p>
+                </div>
+
+                <div class="visualizer-controls">
+                    <!-- Color theme selector -->
+                    <div class="theme-select-wrap">
+                        <label for="skeleton-theme" class="ctrl-label">Skeleton Style:</label>
+                        <select id="skeleton-theme" class="modern-select">
+                            <option value="cyberpunk" selected>⚡ Cyberpunk Cyan/Indigo</option>
+                            <option value="emerald">🌿 Emerald Glow</option>
+                            <option value="sunfire">🔥 Sunfire Orange</option>
+                            <option value="neonpink">💖 Neon Rose</option>
+                        </select>
+                    </div>
+
+                    <!-- Glow and joints toggle -->
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggle-glow" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Glow</span>
+                    </label>
+
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggle-points" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Joints</span>
+                    </label>
+
+                    <button class="btn btn-secondary btn-sm" id="btn-fullscreen" title="Fullscreen Visualizer">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Side-by-Side Player Cards -->
+            <div class="visualizer-grid" id="visualizer-container">
+                <!-- Video Player Card -->
+                <div class="card glass-panel player-card">
+                    <div class="player-card-header">
+                        <div class="badge badge-video">
+                            <span class="dot-live"></span> ISL Sign Video
+                        </div>
+                        <span class="fps-badge" id="video-info-badge">30 FPS</span>
+                    </div>
+
+                    <div class="video-container">
+                        <video id="isl-video" class="responsive-video" playsinline preload="auto">
+                            <source src="" type="video/mp4" id="video-source">
+                            Your browser does not support HTML5 video.
+                        </video>
+                        <!-- Active Word Subtitle Overlay -->
+                        <div class="subtitle-overlay" id="subtitle-overlay">
+                            <span class="subtitle-text" id="active-word-badge">Ready</span>
+                        </div>
+                    </div>
+
+                    <!-- Custom Player Controls -->
+                    <div class="custom-controls">
+                        <button class="ctrl-btn" id="play-pause-btn" title="Play/Pause (Space)">
+                            <svg id="play-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            <svg id="pause-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                        </button>
+
+                        <button class="ctrl-btn" id="step-back-btn" title="Step Back 1 Frame">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11 19 2 12 11 5"/><polyline points="22 19 13 12 22 5"/></svg>
+                        </button>
+                        <button class="ctrl-btn" id="step-fwd-btn" title="Step Forward 1 Frame">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 19 22 12 13 5"/><polyline points="2 19 11 12 2 5"/></svg>
+                        </button>
+
+                        <div class="time-slider-wrap">
+                            <input type="range" id="video-seek" min="0" max="100" value="0" step="0.1" class="seek-slider">
+                        </div>
+
+                        <span class="time-display" id="time-display">00:00 / 00:00</span>
+
+                        <!-- Speed selector -->
+                        <div class="speed-selector">
+                            <select id="playback-speed" class="speed-select" title="Playback Speed">
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1.0" selected>1.0x</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                            </select>
+                        </div>
+
+                        <!-- Loop toggle -->
+                        <button class="ctrl-btn" id="loop-toggle-btn" title="Loop Playback">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Skeleton Canvas Visualizer Card -->
+                <div class="card glass-panel skeleton-card">
+                    <div class="player-card-header">
+                        <div class="badge badge-skeleton">
+                            <span class="dot-live skeleton-dot"></span> MediaPipe 33-Pose Landmark Skeleton
+                        </div>
+                        <span class="fps-badge" id="skeleton-frame-badge">Frame 0</span>
+                    </div>
+
+                    <div class="canvas-container">
+                        <canvas id="skeleton-canvas" width="640" height="480"></canvas>
+                        <div class="canvas-watermark">MediaPipe Pose AI</div>
+                    </div>
+
+                    <!-- Interactive Word Timeline Strip -->
+                    <div class="timeline-container">
+                        <div class="timeline-label">Click word to seek:</div>
+                        <div class="timeline-word-strip" id="word-timeline-strip">
+                            <!-- Populated dynamically with sign word chips -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export & Dataset Hub -->
+            <div class="card glass-panel export-card">
+                <div class="export-header">
+                    <div>
+                        <h3 class="export-title">Export Dataset & Media</h3>
+                        <p class="export-subtitle">Download the rendered ISL video, extracted NumPy keypoints, or structured CSV landmark rows.</p>
+                    </div>
+                </div>
+                <div class="export-grid">
+                    <a href="#" id="download-video-btn" class="export-btn btn-mp4" download>
+                        <div class="export-icon">🎬</div>
+                        <div class="export-info">
+                            <span class="export-name">Final ISL Video</span>
+                            <span class="export-type">MP4 Format (H.264 / AAC)</span>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </a>
+
+                    <a href="#" id="download-npz-btn" class="export-btn btn-npz" download>
+                        <div class="export-icon">🧠</div>
+                        <div class="export-info">
+                            <span class="export-name">Skeleton NumPy Array</span>
+                            <span class="export-type">Compressed Array (.npz)</span>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </a>
+
+                    <a href="#" id="download-csv-btn" class="export-btn btn-csv" download>
+                        <div class="export-icon">📊</div>
+                        <div class="export-info">
+                            <span class="export-name">Tabular Keypoints</span>
+                            <span class="export-type">CSV Dataset (.csv)</span>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </a>
+
+                    <a href="#" id="download-json-btn" class="export-btn btn-json" download>
+                        <div class="export-icon">⚡</div>
+                        <div class="export-info">
+                            <span class="export-name">Web Skeleton Timeline</span>
+                            <span class="export-type">JSON Trajectory (.json)</span>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Generations History Section -->
+        <section class="card glass-panel history-card" id="history-section" style="display: none;">
+            <div class="history-header">
+                <h3 class="history-title">Recent Translations</h3>
+                <button class="btn btn-ghost btn-sm" id="clear-history-btn">Clear History</button>
+            </div>
+            <div class="history-list" id="history-list">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Sign Dictionary Modal -->
+    <div class="modal-backdrop" id="dict-modal" style="display: none;">
+        <div class="modal-card glass-panel">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Indian Sign Language Dictionary</h2>
+                    <p class="modal-subtitle">Browse all <span id="tab-all-count">228</span> signs mapped in the dataset. Click any word to insert it directly into your sentence.</p>
+                </div>
+                <button class="close-btn" id="close-dict-btn">&times;</button>
+            </div>
+
+            <div class="dict-search-wrap">
+                <input type="text" id="dict-search-input" class="search-input" placeholder="Search vocabulary (e.g. 'school', 'tomorrow', 'father', 'work', 'eat')...">
+            </div>
+
+            <div class="dict-grid-container" id="dict-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/skeleton_player.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "job_id": "ff0316aa",
+  "original_text": "he drive car to bank work",
+  "isl_text": "he drive car to bank work",
+  "words": [
+    "he",
+    "drive",
+    "car",
+    "to",
+    "bank",
+    "work"
+  ],
+  "missing_words": [],
+  "word_durations": [
+    {
+      "word": "he",
+      "start_ms": 0.0,
+      "end_ms": 3000.0,
+      "duration_ms": 3000.0
+    },
+    {
+      "word": "drive",
+      "start_ms": 3000.0,
+      "end_ms": 6000.0,
+      "duration_ms": 3000.0
+    },
+    {
+      "word": "car",
+      "start_ms": 6000.0,
+      "end_ms": 8000.0,
+      "duration_ms": 2000.0
+    },
+    {
+      "word": "to",
+      "start_ms": 8000.0,
+      "end_ms": 10000.0,
+      "duration_ms": 2000.0
+    },
+    {
+      "word": "bank",
+      "start_ms": 10000.0,
+      "end_ms": 12000.0,
+      "duration_ms": 2000.0
+    },
+    {
+      "word": "work",
+      "start_ms": 12000.0,
+      "end_ms": 15000.0,
+      "duration_ms": 3000.0
+    }
+  ],
+  "total_duration_ms": 15000.0,
+  "video_url": "/static/outputs/ff0316aa/final_isl_ff0316aa.mp4",
+  "npz_url": "/static/outputs/ff0316aa/final_keypoints.npz",
+  "csv_url": "/static/outputs/ff0316aa/final_keypoints.csv",
+  "json_url": "/static/outputs/ff0316aa/final_keypoints.json",
+  "total_frames": 390,
+  "fps": 21.666666666666668
+}
