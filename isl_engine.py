@@ -175,7 +175,7 @@ Provide ONLY the space-separated ISL words as output. Do not include any explana
 
 
 def get_ffmpeg_location() -> Optional[str]:
-    """Return the ffmpeg executable path."""
+    """Return the ffmpeg executable path across Windows and Linux (PythonAnywhere)."""
     env_path = os.environ.get('FFMPEG_PATH')
     if env_path and os.path.isfile(env_path):
         return env_path
@@ -184,7 +184,19 @@ def get_ffmpeg_location() -> Optional[str]:
     if ffmpeg_path:
         return ffmpeg_path
 
-    common_paths = [
+    # Check Linux / PythonAnywhere standard paths
+    linux_paths = [
+        '/usr/bin/ffmpeg',
+        '/usr/local/bin/ffmpeg',
+        os.path.expanduser('~/.local/bin/ffmpeg'),
+        os.path.expanduser('~/bin/ffmpeg'),
+    ]
+    for path in linux_paths:
+        if os.path.isfile(path) and os.access(path, os.X_OK):
+            return path
+
+    # Check Windows paths
+    windows_paths = [
         os.path.expandvars(r'%ProgramFiles%\\ffmpeg\\bin\\ffmpeg.exe'),
         os.path.expandvars(r'%ProgramFiles(x86)%\\ffmpeg\\bin\\ffmpeg.exe'),
         os.path.expandvars(r'%LocalAppData%\\Programs\\ffmpeg\\bin\\ffmpeg.exe'),
@@ -192,9 +204,20 @@ def get_ffmpeg_location() -> Optional[str]:
         os.path.expanduser(r'~\\AppData\\Local\\Microsoft\\WindowsApps\\ffmpeg.exe'),
         r'C:\Users\MrHat\Downloads\ffmpeg-master-latest-win64-gpl-shared\ffmpeg-master-latest-win64-gpl-shared\bin\ffmpeg.EXE'
     ]
-    for path in common_paths:
+    for path in windows_paths:
         if os.path.isfile(path):
             return path
+
+    # Try imageio_ffmpeg if installed
+    try:
+        import importlib
+        imageio_ffmpeg = importlib.import_module("imageio_ffmpeg")
+        candidate = getattr(imageio_ffmpeg, "get_ffmpeg_exe", lambda: None)()
+        if candidate and os.path.isfile(candidate):
+            return candidate
+    except Exception:
+        pass
+
     return None
 
 

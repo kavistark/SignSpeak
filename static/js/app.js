@@ -387,20 +387,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    let polledLogIndices = new Set();
+
     async function checkJobResultPolling(jobId, originalText) {
         try {
-            const res = await fetch(`/api/result/${jobId}`);
+            const res = await fetch(`/api/poll/${jobId}`);
             const data = await res.json();
+            
+            if (data.progress !== undefined) {
+                progressBarFill.style.width = `${data.progress}%`;
+                progressPercent.textContent = `${data.progress}%`;
+            }
+            if (data.last_message) {
+                progressStatusText.textContent = data.last_message;
+            }
+            if (data.logs && Array.isArray(data.logs)) {
+                data.logs.forEach((logItem, idx) => {
+                    if (!polledLogIndices.has(idx) && logItem.message) {
+                        appendTerminalLog(logItem.message);
+                        polledLogIndices.add(idx);
+                    }
+                });
+            }
+
             if (data.status === 'completed') {
+                polledLogIndices.clear();
                 onJobComplete(jobId, originalText);
             } else if (data.status === 'failed') {
-                progressStatusText.textContent = `Pipeline failed: ${data.error}`;
+                polledLogIndices.clear();
+                progressStatusText.textContent = `Pipeline failed: ${data.error || 'Unknown error'}`;
                 generateBtn.disabled = false;
             } else {
-                setTimeout(() => checkJobResultPolling(jobId, originalText), 1500);
+                setTimeout(() => checkJobResultPolling(jobId, originalText), 1200);
             }
         } catch (e) {
-            generateBtn.disabled = false;
+            setTimeout(() => checkJobResultPolling(jobId, originalText), 2000);
         }
     }
 

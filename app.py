@@ -15,8 +15,17 @@ from flask_cors import CORS
 
 import isl_engine
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates'),
+    static_folder=os.path.join(BASE_DIR, 'static')
+)
 CORS(app)
+
+# WSGI entrypoint for PythonAnywhere (uWSGI / mod_wsgi)
+application = app
 
 # In-memory job state tracking
 jobs: Dict[str, Dict[str, Any]] = {}
@@ -235,6 +244,29 @@ def result(job_id):
         })
 
 
+@app.route('/api/poll/<job_id>', methods=['GET'])
+def poll_status(job_id):
+    """Fallback polling endpoint for platforms like PythonAnywhere where SSE might be buffered."""
+    with jobs_lock:
+        job = jobs.get(job_id)
+        if not job:
+            meta_path = os.path.join(isl_engine.STATIC_OUTPUTS_DIR, job_id, "meta.json")
+            if os.path.exists(meta_path):
+                with open(meta_path, "r", encoding="utf-8") as f:
+                    return jsonify({"job_id": job_id, "status": "completed", "progress": 100, "result": json.load(f), "logs": []})
+            return jsonify({"error": "Job not found"}), 404
+
+        return jsonify({
+            "job_id": job_id,
+            "status": job["status"],
+            "progress": job["progress"],
+            "last_message": job.get("last_message", ""),
+            "logs": job.get("logs", []),
+            "result": job.get("result"),
+            "error": job.get("error")
+        })
+
+
 @app.route('/api/keypoints/<job_id>', methods=['GET'])
 def keypoints_json(job_id):
     """Return JSON keypoints animation timeline."""
@@ -243,6 +275,14 @@ def keypoints_json(job_id):
         return jsonify({"error": "Keypoints not found"}), 404
     with open(json_path, "r", encoding="utf-8") as f:
         return jsonify(json.load(f))
+
+
+@app.route('/static/outputs/<job_id>/<filename>')
+def serve_output_file(job_id, filename):
+    """Serve generated output files (videos, npz, csv) with correct MIME types."""
+    from flask import send_from_directory
+    output_dir = os.path.join(isl_engine.STATIC_OUTPUTS_DIR, job_id)
+    return send_from_directory(output_dir, filename)
 
 
 if __name__ == '__main__':
