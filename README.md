@@ -1,13 +1,13 @@
-# Indian Sign Language (ISL) Web Studio
+# Indian Sign Language (ISL) Web Studio (SignSpeak)
 
-A Flask-based AI web application that translates English sentences into Indian Sign Language (ISL) video sequences with synchronized real-time MediaPipe skeleton landmark rendering and ML dataset export capabilities.
+A Django-based AI web application that translates English sentences into Indian Sign Language (ISL) video sequences with synchronized real-time MediaPipe skeleton landmark rendering and ML dataset export capabilities.
 
 ---
 
 ## 🌟 Key Features
 
 - **ISL Translation Engine**: Intelligent grammar reordering (Subject-Object-Verb, time-first, base verbs, letter fingerspelling fallback) powered by Gemini API with rule-based fallback.
-- **Automated Video Sourcing & Trimming**: Automatically maps glosses to [NLP_videos.csv](file:///c:/Users/MrHat/OneDrive/Desktop/sign-lan/NLP_videos.csv) and uses `yt-dlp` to download precise video ranges.
+- **Automated Video Sourcing & Trimming**: Automatically maps glosses to `NLP_videos.csv` and uses `yt-dlp` to download precise video ranges.
 - **Smart Clip Concatenation**: Merges individual word videos into a seamless sentence video using `ffmpeg`.
 - **Live Pipeline Terminal**: Server-Sent Events (SSE) streaming real-time status and download progress to the web interface.
 - **Synchronized Video & Skeleton Visualizer**: HTML5 Video player paired in real-time with an interactive HTML5 Canvas skeleton visualizer rendering 33 MediaPipe pose landmarks with glowing connections.
@@ -18,25 +18,43 @@ A Flask-based AI web application that translates English sentences into Indian S
 
 ## 📁 Project Structure
 
-```
+```text
 sign-lan/
-├── app.py                     # Flask web server & REST/SSE API endpoints
-├── isl_engine.py              # Translation, video processing, & keypoint extraction pipeline
-├── requirements.txt           # Python dependencies
-├── NLP_videos.csv             # Sign language vocabulary dataset
-├── pose_landmarker.task       # MediaPipe pose model
+├── manage.py                     # Django management CLI
+├── db.sqlite3                    # SQLite database
+├── NLP_videos.csv                # Sign language vocabulary dataset
+├── pose_landmarker.task          # MediaPipe pose model
+├── isl_engine.py                 # Translation, video processing, & keypoint extraction pipeline
+├── requirements.txt              # Python dependencies (Django, OpenCV, MediaPipe, etc.)
+│
+├── signspeak/                    # Django Project Root
+│   ├── __init__.py
+│   ├── settings.py               # Django settings (Static, Templates, Apps)
+│   ├── urls.py                   # Master URL routing
+│   ├── wsgi.py                   # WSGI application entrypoint
+│   └── asgi.py                   # ASGI application entrypoint
+│
+├── translator/                   # Django App
+│   ├── __init__.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── urls.py                   # API routes (/api/diagnostics, /api/process, etc.)
+│   └── views.py                  # Django views & Server-Sent Events (SSE) streaming
+│
 ├── templates/
-│   └── index.html             # Single-page modern glassmorphic web UI
+│   └── index.html                # Modern glassmorphic web UI
+│
 ├── static/
 │   ├── css/
-│   │   └── style.css          # Design system & glassmorphic styling
+│   │   └── style.css             # Design system & glassmorphic styling
 │   ├── js/
-│   │   ├── app.js             # UI interactions, API client, & SSE handler
-│   │   └── skeleton_player.js # Canvas 2D skeleton renderer
-│   ├── outputs/               # Per-job generated videos, keypoints, & metadata
-│   └── temp_segments/         # Temporary downloaded clip cache
-├── README.md                  # Project documentation
-└── .gitignore                 # Git ignore rules
+│   │   ├── app.js                # UI interactions, API client, & SSE handler
+│   │   └── skeleton_player.js    # Canvas 2D skeleton renderer
+│   ├── outputs/                  # Per-job generated videos, keypoints, & metadata
+│   └── temp_segments/            # Temporary downloaded clip cache
+│
+├── README.md                     # Project documentation
+└── .gitignore                    # Git ignore rules
 ```
 
 ---
@@ -48,17 +66,17 @@ sign-lan/
 pip install -r requirements.txt
 ```
 
-### 2. Verify FFmpeg
-FFmpeg is required for video extraction and concatenation. Ensure it is available on your PATH:
+### 2. Run Database Migrations
 ```bash
-ffmpeg -version
+python manage.py migrate
 ```
 
-### 3. Run the Web Application
+### 3. Run the Django Server
 ```bash
-python app.py
+python manage.py runserver 8000
 ```
+
 Open your browser and navigate to:
 ```
-http://localhost:5000
+http://127.0.0.1:8000
 ```
