@@ -1,6 +1,15 @@
-# Indian Sign Language (ISL) Web Studio (SignSpeak)
+# SignSpeak — Indian Sign Language (ISL) AI Studio
 
-A Django-based AI web application that translates English sentences into Indian Sign Language (ISL) video sequences with synchronized real-time MediaPipe skeleton landmark rendering and ML dataset export capabilities.
+A state-of-the-art Django-based AI web platform that translates English sentences into Indian Sign Language (ISL) video sequences with synchronized real-time MediaPipe 33-landmark skeleton rendering and ML dataset export capabilities.
+
+---
+
+## 👥 Organization & Engineering Team
+
+* **Organization**: **Nconix Technologies**
+* **Lead Developers**:
+  * 👨‍💻 **Kaviyarasan**
+  * 👨‍💻 **Sarveshwaren**
 
 ---
 
@@ -53,7 +62,7 @@ sign-lan/
 │   ├── outputs/                  # Per-job generated videos, keypoints, & metadata
 │   └── temp_segments/            # Temporary downloaded clip cache
 │
-├── README.md                     # Project documentation
+├── README.md                     # Project documentation & credits
 └── .gitignore                    # Git ignore rules
 ```
 
